@@ -1,5 +1,11 @@
 namespace BlazeToDo_API.ToDo.DTO;
 
+
+public class CriaCategoriaDTO
+{
+    public string Categoria { get; set; }
+}
+
 public class ListaTarefasPorCategoria
 {
     public string Categoria { get; set; }

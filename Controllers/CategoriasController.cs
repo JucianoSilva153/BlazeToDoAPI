@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using BlazeToDo_API.ToDo;
+using BlazeToDo_API.ToDo.DTO;
 using BlazeToDo_API.ToDo.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +17,7 @@ namespace BlazeToDo_API.Controllers
         }
         
         [HttpPost]
-        public async Task<RequestResponse> CriarCategoria( [FromBody] CategoriaModel novaCategoria)
+        public async Task<RequestResponse> CriarCategoria( [FromBody] CriaCategoriaDTO novaCategoria)
         {
             return await service.CreateCategoria(novaCategoria);
         }
@@ -28,15 +29,16 @@ namespace BlazeToDo_API.Controllers
         }
 
         [HttpPut]
-        public async Task<RequestResponse> AlterarCategoria( [FromBody] CategoriaModel categoria)
+        public async Task<RequestResponse> AlterarCategoria( [FromBody] ListaAlteraCategorias categoria)
         {
             return await service.EditCategoria(categoria);
         }
 
         [HttpDelete]
-        public async Task<RequestResponse> ApagarCategoria([FromBody] CategoriaModel categoria)
+        [Route("/{id}")]
+        public async Task<RequestResponse> ApagarCategoria(int id)
         {
-            return await service.DeleteCategoria(categoria);
+            return await service.DeleteCategoria(id);
         }
     }
 }

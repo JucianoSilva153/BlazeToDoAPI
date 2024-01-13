@@ -1,4 +1,5 @@
 using BlazeToDo_API.Context;
+using BlazeToDo_API.ToDo.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlazeToDo_API.ToDo.Services;
@@ -7,12 +8,23 @@ public class CategoriasService
 {
     private DBToDO acessoDados = new DBToDO();
 
-    public async Task<RequestResponse> CreateCategoria(CategoriaModel categoria)
+    public async Task<RequestResponse> CreateCategoria(CriaCategoriaDTO categoria)
     {
+        var retornoCategoria = new CriaCategoriaDTO();
         try
         {
-            acessoDados.Categoria.Add(categoria);
+            var novaCategoria = new CategoriaModel
+            {
+                Nome = categoria.Categoria
+            };
+
+            var categoriaAdicionada = acessoDados.Categoria.Add(novaCategoria);
             await acessoDados.SaveChangesAsync();
+
+            retornoCategoria = new CriaCategoriaDTO
+            {
+                Categoria = categoriaAdicionada.Entity.Nome
+            };
         }
         catch (Exception e)
         {
@@ -26,26 +38,28 @@ public class CategoriasService
         return new RequestResponse
         {
             Mensagem = "Categoria Adicionada com sucesso!!",
-            Sucesso = true
+            Sucesso = true,
+            Target = retornoCategoria
         };
     }
 
     public async Task<RequestResponse> ListAllCategorias()
     {
-        var categorias = new List<CategoriaModel>();
+        var categorias = new List<CriaCategoriaDTO>();
         try
         {
-            categorias = await acessoDados.Categoria.AsNoTracking()
+            var ListaCategorias = await acessoDados.Categoria.AsNoTracking()
                 .Include(c => c.Tarefas)
                 .ToListAsync();
 
-            foreach (var categoria in categorias)
+            foreach (var categoria in ListaCategorias)
             {
-                foreach (var tarefa in categoria.Tarefas)
+                categorias.Add(new CriaCategoriaDTO
                 {
-                    tarefa.Categoria = null;
-                }
+                    Categoria = categoria.Nome
+                });
             }
+            
         }
         catch (Exception e)
         {
@@ -64,13 +78,13 @@ public class CategoriasService
         };
     }
 
-    public async Task<RequestResponse> EditCategoria(CategoriaModel categoria)
+    public async Task<RequestResponse> EditCategoria(ListaAlteraCategorias categoria)
     {
         var categoriaAlterar = new CategoriaModel();
         try
         {
             categoriaAlterar = await acessoDados.Categoria.FirstAsync(e => e.Id == categoria.Id);
-            categoriaAlterar.Nome = categoria.Nome;
+            categoriaAlterar.Nome = categoria.Categoria;
             acessoDados.Update(categoriaAlterar);
             await acessoDados.SaveChangesAsync();
         }
@@ -87,15 +101,26 @@ public class CategoriasService
         {
             Mensagem = "Categoria alterada com sucesso!",
             Sucesso = true,
-            Target = categoriaAlterar
+            Target = categoria
         };
     }
 
-    public async Task<RequestResponse> DeleteCategoria(CategoriaModel categoria)
+    public async Task<RequestResponse> DeleteCategoria(int IdCategoria)
     {
         try
         {
-            acessoDados.Remove(categoria);
+            var categoriaRemover = await acessoDados.Categoria
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == IdCategoria);
+
+            if (categoriaRemover is null)
+                return new RequestResponse
+                {
+                    Mensagem = "Categoria Nao encontrada",
+                    Sucesso = false
+                };
+            
+            acessoDados.Remove<CategoriaModel>(categoriaRemover);
             await acessoDados.SaveChangesAsync();
         }
         catch (Exception e)
@@ -110,8 +135,7 @@ public class CategoriasService
         return new RequestResponse
         {
             Mensagem = "Categoria Eliminada com sucesso!!",
-            Sucesso = true,
-            Target = categoria
+            Sucesso = true
         };
     }
 }
