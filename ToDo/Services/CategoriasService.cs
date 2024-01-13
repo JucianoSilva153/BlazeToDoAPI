@@ -1,9 +1,9 @@
 using BlazeToDo_API.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlazeToDo_API.ToDo;
+namespace BlazeToDo_API.ToDo.Services;
 
-public class Categorias
+public class CategoriasService
 {
     private DBToDO acessoDados = new DBToDO();
 
@@ -35,7 +35,17 @@ public class Categorias
         var categorias = new List<CategoriaModel>();
         try
         {
-            categorias = await acessoDados.Categoria.AsNoTracking().ToListAsync();
+            categorias = await acessoDados.Categoria.AsNoTracking()
+                .Include(c => c.Tarefas)
+                .ToListAsync();
+
+            foreach (var categoria in categorias)
+            {
+                foreach (var tarefa in categoria.Tarefas)
+                {
+                    tarefa.Categoria = null;
+                }
+            }
         }
         catch (Exception e)
         {
