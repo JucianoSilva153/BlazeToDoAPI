@@ -32,6 +32,19 @@ public partial class DBToDO : DbContext
             .UseCollation("utf8mb4_bin")
             .HasCharSet("utf8mb4");
 
+        modelBuilder.Entity<TarefaModel>()
+            .HasOne(t => t.Categoria)
+            .WithMany(c => c.Tarefas)
+            .HasForeignKey(c => c.CategoriaId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<ListaModel>()
+            .HasMany(l => l.Tarefas)
+            .WithOne(t => t.Lista)
+            .HasForeignKey(t => t.ListaId)
+            .OnDelete(DeleteBehavior.NoAction);
+        
+
         OnModelCreatingPartial(modelBuilder);
     }
 

@@ -1,4 +1,5 @@
 using BlazeToDo_API.ToDo;
+using BlazeToDo_API.ToDo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,9 +9,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<Tarefas>();
-builder.Services.AddScoped<Listas>();
-builder.Services.AddScoped<Categorias>();
+builder.Services.AddScoped<TarefasService>();
+builder.Services.AddScoped<ListasService>();
+builder.Services.AddScoped<CategoriasService>();
 
 var app = builder.Build();
 
