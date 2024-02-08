@@ -6,7 +6,12 @@ namespace BlazeToDo_API.ToDo.Services;
 
 public class CategoriasService
 {
-    private DBToDO acessoDados = new DBToDO();
+    private DBToDO acessoDados;
+
+    public CategoriasService(DBToDO acessoDados)
+    {
+        this.acessoDados = acessoDados;
+    }
 
     public async Task<RequestResponse> CreateCategoria(CriaCategoriaDTO categoria)
     {

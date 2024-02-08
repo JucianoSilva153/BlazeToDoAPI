@@ -1,16 +1,27 @@
 using BlazeToDo_API.Context;
+using BlazeToDo_API.ToDo.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlazeToDo_API.ToDo.Services;
 
 public class ListasService
 {
-    private DBToDO acessoDados = new DBToDO();
-    public async Task<RequestResponse> CreateTaskList(ListaModel lista)
+    private DBToDO acessoDados;
+
+    public ListasService(DBToDO acessoDados)
+    {
+        this.acessoDados = acessoDados;
+    }
+
+    public async Task<RequestResponse> CreateTaskList(CriaListaTarefasDTO lista)
     {
         try
         {
-            acessoDados.Lista.Add(lista);
+            acessoDados.Lista.Add(new ListaModel()
+            {
+                Nome = lista.Lista
+            });
+
             await acessoDados.SaveChangesAsync();
         }
         catch (Exception e)
@@ -32,20 +43,21 @@ public class ListasService
 
     public async Task<RequestResponse> ListTaskList()
     {
-        var listasTarefa = new List<ListaModel>();
+        var listasTarefa = new List<ListaAlteraListaTarefaDTO>();
         try
         {
-            listasTarefa = await acessoDados.Lista
+            var listas = await acessoDados.Lista
                 .AsNoTracking()
                 .Include(c => c.Tarefas)
                 .ToListAsync();
 
-            foreach (var lista in listasTarefa)
+            foreach (var lista in listas)
             {
-                foreach (var tarefa in lista.Tarefas)
+                listasTarefa.Add(new ListaAlteraListaTarefaDTO()
                 {
-                    tarefa.Lista = null;
-                }
+                    Id = lista.Id,
+                    Lista = lista.Nome
+                });
             }
         }
         catch (Exception e)
@@ -59,6 +71,67 @@ public class ListasService
             Mensagem = "Listas de tarefas listadas com sucesso",
             Sucesso = true,
             Target = listasTarefa
+        };
+    }
+
+    public async Task<RequestResponse> ListTasksPerList()
+    {
+        var listasTarefas = new List<TarefasDeUmaListaDTO>();
+        try
+        {
+            var tarefasPorLista = await acessoDados.Lista
+                .AsNoTracking()
+                .Include(l => l.Tarefas)!
+                .ThenInclude(c => c.Categoria)
+                .Include(l => l.Tarefas)
+                .ToListAsync();
+
+
+            foreach (var listas in tarefasPorLista)
+            {
+                if (listas.Tarefas is not null)
+                    foreach (var tarefa in listas.Tarefas)
+                    {
+                        listasTarefas.Add(new TarefasDeUmaListaDTO
+                        {
+                            Lista = listas.Nome,
+                            Tarefas = new List<ListaTarefaDTO>
+                            {
+                                //TODO: Criar uma funcao para converter a data em string para DateTime, ou entao, tranformar o tipo de dados na model de string para dateTime
+                                new ListaTarefaDTO()
+                                {
+                                    Categoria = tarefa.Categoria?.Nome,
+                                    Concluida = tarefa.Concluida,
+                                    Conclusao = tarefa.DataConclusao != ""
+                                        ? DateTime.Parse(tarefa.DataConclusao)
+                                        : new DateTime(),
+                                    Criacao = DateTime.Parse(tarefa.DataCriacao),
+                                    Prioridade = tarefa.Prioridade,
+                                    Descricao = tarefa.Descricao,
+                                    Tarefa = tarefa.Nome,
+                                    ListaPertencente = tarefa.Lista.Nome,
+                                    Id = tarefa.Id
+                                }
+                            }
+                        });
+                    }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return new RequestResponse
+            {
+                Mensagem = e.Message,
+                Sucesso = false
+            };
+        }
+
+        return new RequestResponse
+        {
+            Mensagem = "Listas e Suas Tarefas retornada com sucesso",
+            Sucesso = true,
+            Target = listasTarefas
         };
     }
 }

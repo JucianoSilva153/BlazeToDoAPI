@@ -5,7 +5,12 @@ namespace BlazeToDo_API.ToDo.Services;
 
 public class TarefasService
 {
-    private DBToDO acessoDados = new DBToDO();
+    private DBToDO acessoDados;
+
+    public TarefasService(DBToDO acessoDados)
+    {
+        this.acessoDados = acessoDados;
+    }
 
 
     public async Task<RequestResponse> CreateTask(TarefaModel tarefa)
