@@ -19,7 +19,8 @@ public class ListasService
         {
             acessoDados.Lista.Add(new ListaModel()
             {
-                Nome = lista.Lista
+                Nome = lista.Lista,
+                ContaId = lista.ContaID
             });
 
             await acessoDados.SaveChangesAsync();
@@ -41,14 +42,14 @@ public class ListasService
         };
     }
 
-    public async Task<RequestResponse> ListTaskList()
+    public async Task<RequestResponse> ListTaskList(int Id)
     {
         var listasTarefa = new List<ListaAlteraListaTarefaDTO>();
         try
         {
             var listas = await acessoDados.Lista
                 .AsNoTracking()
-                .Include(c => c.Tarefas)
+                .Where(l => l.ContaId == Id)
                 .ToListAsync();
 
             foreach (var lista in listas)
@@ -102,10 +103,8 @@ public class ListasService
                                 {
                                     Categoria = tarefa.Categoria?.Nome,
                                     Concluida = tarefa.Concluida,
-                                    Conclusao = tarefa.DataConclusao != ""
-                                        ? DateTime.Parse(tarefa.DataConclusao)
-                                        : new DateTime(),
-                                    Criacao = DateTime.Parse(tarefa.DataCriacao),
+                                    Conclusao = ConverterData(tarefa.DataConclusao),
+                                    Criacao = ConverterData(tarefa.DataCriacao),
                                     Prioridade = tarefa.Prioridade,
                                     Descricao = tarefa.Descricao,
                                     Tarefa = tarefa.Nome,
@@ -133,5 +132,11 @@ public class ListasService
             Sucesso = true,
             Target = listasTarefas
         };
+    }
+
+    private DateTime ConverterData(string data)
+    {
+        var dataSplited = data.Split("/");
+        return new DateTime(int.Parse(dataSplited[2]), int.Parse(dataSplited[2]), int.Parse(dataSplited[2]));
     }
 }

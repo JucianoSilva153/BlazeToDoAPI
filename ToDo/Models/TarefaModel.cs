@@ -15,6 +15,9 @@ public class TarefaModel
 
 
     
+    public int ContaId { get; set; }
+    public ContaModel Conta { get; set; }
+     
     public int CategoriaId { get; set; }
     public CategoriaModel? Categoria { get; set; }
 

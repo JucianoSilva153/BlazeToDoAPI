@@ -6,8 +6,14 @@ public class TarefasDeUmaListaDTO
     public List<ListaTarefaDTO> Tarefas { get; set; }
 }
 
-public class ListaAlteraListaTarefa
+public class ListaAlteraListaTarefaDTO
 {
     public int Id { get; set; }
     public string Lista { get; set; }
+}
+
+public class CriaListaTarefasDTO
+{
+    public string Lista { get; set; }
+    public int ContaID { get; set; }
 }

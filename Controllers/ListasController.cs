@@ -1,5 +1,8 @@
+using System.Security.Claims;
 using BlazeToDo_API.ToDo;
+using BlazeToDo_API.ToDo.DTO;
 using BlazeToDo_API.ToDo.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlazeToDo_API.Controllers
@@ -9,21 +12,43 @@ namespace BlazeToDo_API.Controllers
     public class ListasController : ControllerBase
     {
         private readonly ListasService service;
+
         public ListasController(ListasService _service)
         {
             service = _service;
         }
-        
+
         [HttpPost]
-        public async Task<RequestResponse> NovaListaTarefas([FromBody] ListaModel lista)
+        [Authorize]
+        public async Task<RequestResponse> NovaListaTarefas([FromBody] CriaListaTarefasDTO lista)
         {
             return await service.CreateTaskList(lista);
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<RequestResponse> ListarListasTarefas()
         {
-            return await service.ListTaskList();
+            if (User.FindFirstValue("Id") != null)
+            {
+                var IdConta = int.Parse(User.FindFirstValue("Id"));
+                return await service.ListTaskList(IdConta);
+            }
+
+            return new RequestResponse()
+            {
+                Mensagem = "Erro ao Retornar Listas",
+                Target = null,
+                Sucesso = false
+            };
+        }
+
+        [HttpGet]
+        [Route("Tarefas")]
+        [Authorize]
+        public async Task<RequestResponse> ListarTarefasPorLista()
+        {
+            return await service.ListTasksPerList();
         }
     }
 }

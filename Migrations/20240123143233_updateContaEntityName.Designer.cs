@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BlazeToDo_API.Entities
+namespace BlazeToDo_API.Migrations
 {
     [DbContext(typeof(DBToDO))]
-    [Migration("20231230183144_TentativaFixRelacionamento3")]
-    partial class TentativaFixRelacionamento3
+    [Migration("20240123143233_updateContaEntityName")]
+    partial class updateContaEntityName
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,16 +30,21 @@ namespace BlazeToDo_API.Entities
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int>("ContaId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ContaId");
+
                     b.ToTable("Categoria");
                 });
 
-            modelBuilder.Entity("BlazeToDo_API.ToDo.ListaModel", b =>
+            modelBuilder.Entity("BlazeToDo_API.ToDo.ContaModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -49,12 +54,38 @@ namespace BlazeToDo_API.Entities
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("TarefasId")
+                    b.Property<int>("contacto")
                         .HasColumnType("int");
+
+                    b.Property<string>("email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TarefasId");
+                    b.ToTable("Conta");
+                });
+
+            modelBuilder.Entity("BlazeToDo_API.ToDo.ListaModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("ContaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContaId");
 
                     b.ToTable("Lista");
                 });
@@ -70,6 +101,9 @@ namespace BlazeToDo_API.Entities
 
                     b.Property<bool>("Concluida")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("ContaId")
+                        .HasColumnType("int");
 
                     b.Property<string>("DataConclusao")
                         .HasColumnType("longtext");
@@ -93,39 +127,79 @@ namespace BlazeToDo_API.Entities
 
                     b.HasIndex("CategoriaId");
 
+                    b.HasIndex("ContaId");
+
+                    b.HasIndex("ListaId");
+
                     b.ToTable("Tarefa");
+                });
+
+            modelBuilder.Entity("BlazeToDo_API.ToDo.CategoriaModel", b =>
+                {
+                    b.HasOne("BlazeToDo_API.ToDo.ContaModel", "Conta")
+                        .WithMany("Categorias")
+                        .HasForeignKey("ContaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Conta");
                 });
 
             modelBuilder.Entity("BlazeToDo_API.ToDo.ListaModel", b =>
                 {
-                    b.HasOne("BlazeToDo_API.ToDo.TarefaModel", "Tarefas")
-                        .WithMany("Lista")
-                        .HasForeignKey("TarefasId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                    b.HasOne("BlazeToDo_API.ToDo.ContaModel", "Conta")
+                        .WithMany("Listas")
+                        .HasForeignKey("ContaId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Tarefas");
+                    b.Navigation("Conta");
                 });
 
             modelBuilder.Entity("BlazeToDo_API.ToDo.TarefaModel", b =>
                 {
                     b.HasOne("BlazeToDo_API.ToDo.CategoriaModel", "Categoria")
-                        .WithMany("Tarefa")
+                        .WithMany("Tarefas")
                         .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("BlazeToDo_API.ToDo.ContaModel", "Conta")
+                        .WithMany("Tarefas")
+                        .HasForeignKey("ContaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BlazeToDo_API.ToDo.ListaModel", "Lista")
+                        .WithMany("Tarefas")
+                        .HasForeignKey("ListaId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.Navigation("Categoria");
+
+                    b.Navigation("Conta");
+
+                    b.Navigation("Lista");
                 });
 
             modelBuilder.Entity("BlazeToDo_API.ToDo.CategoriaModel", b =>
                 {
-                    b.Navigation("Tarefa");
+                    b.Navigation("Tarefas");
                 });
 
-            modelBuilder.Entity("BlazeToDo_API.ToDo.TarefaModel", b =>
+            modelBuilder.Entity("BlazeToDo_API.ToDo.ContaModel", b =>
                 {
-                    b.Navigation("Lista");
+                    b.Navigation("Categorias");
+
+                    b.Navigation("Listas");
+
+                    b.Navigation("Tarefas");
+                });
+
+            modelBuilder.Entity("BlazeToDo_API.ToDo.ListaModel", b =>
+                {
+                    b.Navigation("Tarefas");
                 });
 #pragma warning restore 612, 618
         }

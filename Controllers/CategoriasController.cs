@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using BlazeToDo_API.ToDo;
 using BlazeToDo_API.ToDo.DTO;
 using BlazeToDo_API.ToDo.Services;
@@ -11,25 +12,43 @@ namespace BlazeToDo_API.Controllers
     public class CategoriasController : ControllerBase
     {
         private readonly CategoriasService service;
+
         public CategoriasController(CategoriasService _service)
         {
             service = _service;
         }
-        
+
         [HttpPost]
-        public async Task<RequestResponse> CriarCategoria( [FromBody] CriaCategoriaDTO novaCategoria)
+        public async Task<RequestResponse> CriarCategoria([FromBody] CriaCategoriaDTO novaCategoria)
         {
-            return await service.CreateCategoria(novaCategoria);
+            var IdConta = User.FindFirstValue("Id");
+            if (IdConta is not null)
+                return await service.CreateCategoria(novaCategoria, int.Parse(IdConta));
+
+            return new RequestResponse
+            {
+                Mensagem = "Erro ao listar Categorias",
+                Sucesso = false,
+                Target = null
+            };
         }
 
         [HttpGet]
         public async Task<RequestResponse> ListarTodasCategorias()
         {
-            return await service.ListAllCategorias();
+            var IdConta = User.FindFirstValue("Id");
+            if (IdConta is not null)
+                return await service.ListAllCategorias(int.Parse(IdConta));
+            return new RequestResponse
+            {
+                Mensagem = "Erro ao listar Categorias",
+                Sucesso = false,
+                Target = null
+            };
         }
 
         [HttpPut]
-        public async Task<RequestResponse> AlterarCategoria( [FromBody] ListaAlteraCategorias categoria)
+        public async Task<RequestResponse> AlterarCategoria([FromBody] ListaAlteraCategorias categoria)
         {
             return await service.EditCategoria(categoria);
         }

@@ -13,14 +13,15 @@ public class CategoriasService
         this.acessoDados = acessoDados;
     }
 
-    public async Task<RequestResponse> CreateCategoria(CriaCategoriaDTO categoria)
+    public async Task<RequestResponse> CreateCategoria(CriaCategoriaDTO categoria, int Id)
     {
         var retornoCategoria = new CriaCategoriaDTO();
         try
         {
             var novaCategoria = new CategoriaModel
             {
-                Nome = categoria.Categoria
+                Nome = categoria.Categoria,
+                ContaId = Id
             };
 
             var categoriaAdicionada = acessoDados.Categoria.Add(novaCategoria);
@@ -48,19 +49,20 @@ public class CategoriasService
         };
     }
 
-    public async Task<RequestResponse> ListAllCategorias()
+    public async Task<RequestResponse> ListAllCategorias(int Id)
     {
-        var categorias = new List<CriaCategoriaDTO>();
+        var categorias = new List<ListaAlteraCategorias>();
         try
         {
             var ListaCategorias = await acessoDados.Categoria.AsNoTracking()
-                .Include(c => c.Tarefas)
+                .Where(c => c.ContaId == Id)
                 .ToListAsync();
 
             foreach (var categoria in ListaCategorias)
             {
-                categorias.Add(new CriaCategoriaDTO
+                categorias.Add(new ListaAlteraCategorias()
                 {
+                    Id = categoria.Id,
                     Categoria = categoria.Nome
                 });
             }
