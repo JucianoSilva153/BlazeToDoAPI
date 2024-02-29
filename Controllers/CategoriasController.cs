@@ -54,7 +54,7 @@ namespace BlazeToDo_API.Controllers
         }
 
         [HttpDelete]
-        [Route("/{id}")]
+        [Route("{id}")]
         public async Task<RequestResponse> ApagarCategoria(int id)
         {
             return await service.DeleteCategoria(id);
