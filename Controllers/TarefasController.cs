@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using BlazeToDo_API.ToDo;
+using BlazeToDo_API.ToDo.DTO;
 using BlazeToDo_API.ToDo.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -10,26 +12,35 @@ namespace BlazeToDo_API.Controllers
     [ApiController]
     public class TarefasController : ControllerBase
     {
-
         private readonly TarefasService service;
 
         public TarefasController(TarefasService _service)
         {
             service = _service;
         }
-        
+
         [HttpPost]
         [Authorize]
-        public async Task<RequestResponse> CriarNovaTarefa([FromBody] TarefaModel tarefa)
+        public async Task<RequestResponse> CriarNovaTarefa([FromBody] CriaTarefaDTO tarefa)
         {
-            return await service.CreateTask(tarefa);
+            var IdConta = User.FindFirstValue("Id");
+            return await service.CreateTask(tarefa, int.Parse(IdConta));
         }
 
         [HttpGet]
         [Authorize]
         public async Task<RequestResponse> ListarTarefas()
         {
-            return await service.ListTasks();
+            var IdConta = User.FindFirstValue("Id");
+            return await service.ListTasks(int.Parse(IdConta));
+        }
+
+        [HttpPut]
+        [Authorize]
+        [Route("Concluir/{Id}")]
+        public async Task<RequestResponse> ConcluidTarefa(int Id)
+        {
+            return await service.CompleteTask(Id);
         }
     }
 }

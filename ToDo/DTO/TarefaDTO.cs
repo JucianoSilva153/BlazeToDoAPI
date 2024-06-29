@@ -6,6 +6,8 @@ public class CriaTarefaDTO
     public string Prioridade { get; set; }
     public string Descricao { get; set; }
     public string? Categoria { get; set; }
+    public string? Lista { get; set; }
+    public DateTime Conclusao { get; set; }
 }
 
 public class ListaTarefaDTO {

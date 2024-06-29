@@ -54,7 +54,9 @@ public class CategoriasService
         var categorias = new List<ListaAlteraCategorias>();
         try
         {
-            var ListaCategorias = await acessoDados.Categoria.AsNoTracking()
+            var ListaCategorias = await acessoDados.Categoria
+                .AsNoTracking()
+                .Include(l => l.Tarefas)
                 .Where(c => c.ContaId == Id)
                 .ToListAsync();
 
@@ -63,6 +65,7 @@ public class CategoriasService
                 categorias.Add(new ListaAlteraCategorias()
                 {
                     Id = categoria.Id,
+                    NumeroTarefas = categoria.Tarefas.Count,
                     Categoria = categoria.Nome
                 });
             }

@@ -75,6 +75,8 @@ builder.Services.AddScoped<ListasService>();
 builder.Services.AddScoped<CategoriasService>();
 builder.Services.AddScoped<ContasService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<NotificacaoService>();
+builder.Services.AddHostedService<NotificacaoTaskService>();
 
 var app = builder.Build();
 

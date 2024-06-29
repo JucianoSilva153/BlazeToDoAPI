@@ -49,6 +49,7 @@ public class ListasService
         {
             var listas = await acessoDados.Lista
                 .AsNoTracking()
+                .Include(l => l.Tarefas)
                 .Where(l => l.ContaId == Id)
                 .ToListAsync();
 
@@ -57,6 +58,7 @@ public class ListasService
                 listasTarefa.Add(new ListaAlteraListaTarefaDTO()
                 {
                     Id = lista.Id,
+                    NumeroTarefas = lista.Tarefas.Count,
                     Lista = lista.Nome
                 });
             }

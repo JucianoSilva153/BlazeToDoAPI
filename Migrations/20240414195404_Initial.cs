@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -15,7 +16,7 @@ namespace BlazeToDo_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "ContaModel",
+                name: "Conta",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -30,7 +31,7 @@ namespace BlazeToDo_API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ContaModel", x => x.Id);
+                    table.PrimaryKey("PK_Conta", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4")
                 .Annotation("Relational:Collation", "utf8mb4_bin");
@@ -49,9 +50,9 @@ namespace BlazeToDo_API.Migrations
                 {
                     table.PrimaryKey("PK_Categoria", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Categoria_ContaModel_ContaId",
+                        name: "FK_Categoria_Conta_ContaId",
                         column: x => x.ContaId,
-                        principalTable: "ContaModel",
+                        principalTable: "Conta",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -72,9 +73,9 @@ namespace BlazeToDo_API.Migrations
                 {
                     table.PrimaryKey("PK_Lista", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Lista_ContaModel_ContaId",
+                        name: "FK_Lista_Conta_ContaId",
                         column: x => x.ContaId,
-                        principalTable: "ContaModel",
+                        principalTable: "Conta",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -111,9 +112,9 @@ namespace BlazeToDo_API.Migrations
                         principalTable: "Categoria",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Tarefa_ContaModel_ContaId",
+                        name: "FK_Tarefa_Conta_ContaId",
                         column: x => x.ContaId,
-                        principalTable: "ContaModel",
+                        principalTable: "Conta",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -121,6 +122,36 @@ namespace BlazeToDo_API.Migrations
                         column: x => x.ListaId,
                         principalTable: "Lista",
                         principalColumn: "Id");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .Annotation("Relational:Collation", "utf8mb4_bin");
+
+            migrationBuilder.CreateTable(
+                name: "Notificacao",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    NotificarAos = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Visualizada = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    ContaId = table.Column<int>(type: "int", nullable: false),
+                    TarefaId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notificacao", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notificacao_Conta_ContaId",
+                        column: x => x.ContaId,
+                        principalTable: "Conta",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Notificacao_Tarefa_TarefaId",
+                        column: x => x.TarefaId,
+                        principalTable: "Tarefa",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4")
                 .Annotation("Relational:Collation", "utf8mb4_bin");
@@ -134,6 +165,16 @@ namespace BlazeToDo_API.Migrations
                 name: "IX_Lista_ContaId",
                 table: "Lista",
                 column: "ContaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notificacao_ContaId",
+                table: "Notificacao",
+                column: "ContaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notificacao_TarefaId",
+                table: "Notificacao",
+                column: "TarefaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tarefa_CategoriaId",
@@ -155,6 +196,9 @@ namespace BlazeToDo_API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Notificacao");
+
+            migrationBuilder.DropTable(
                 name: "Tarefa");
 
             migrationBuilder.DropTable(
@@ -164,7 +208,7 @@ namespace BlazeToDo_API.Migrations
                 name: "Lista");
 
             migrationBuilder.DropTable(
-                name: "ContaModel");
+                name: "Conta");
         }
     }
 }

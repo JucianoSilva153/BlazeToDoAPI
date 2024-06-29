@@ -17,6 +17,7 @@ public partial class DBToDO : DbContext
     public DbSet<ContaModel> Conta { get; set; }
     public DbSet<ListaModel> Lista { get; set; }
     public DbSet<CategoriaModel> Categoria { get; set; }
+    public DbSet<NotificacaoModel> Notificacao { get; set; }
 
     public DBToDO(DbContextOptions<DBToDO> options)
         : base(options)
@@ -34,37 +35,23 @@ public partial class DBToDO : DbContext
             .UseCollation("utf8mb4_bin")
             .HasCharSet("utf8mb4");
 
+        modelBuilder.Entity<NotificacaoModel>()
+            .HasOne(n => n.Conta)
+            .WithMany(c => c.Notificacoes)
+            .HasForeignKey(n => n.ContaId);
+
         modelBuilder.Entity<TarefaModel>()
             .HasOne(t => t.Categoria)
             .WithMany(c => c.Tarefas)
             .HasForeignKey(c => c.CategoriaId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         modelBuilder.Entity<ListaModel>()
             .HasMany(l => l.Tarefas)
             .WithOne(t => t.Lista)
             .HasForeignKey(t => t.ListaId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.ClientCascade);
 
-        modelBuilder.Entity<CategoriaModel>()
-            .HasData(new List<CategoriaModel>
-            {
-                new CategoriaModel()
-                {
-                    Id = 1,
-                    Nome = "Padrão"
-                }
-            });
-
-        modelBuilder.Entity<ListaModel>()
-            .HasData(new List<ListaModel>
-            {
-                new ListaModel()
-                {
-                    Id = 1,
-                    Nome = "Padrão"
-                }
-            });
         OnModelCreatingPartial(modelBuilder);
     }
 
